@@ -1,5 +1,6 @@
 'use strict';
 
+var argv = require('yargs').argv;
 var bump = require('gulp-bump');
 var conventionalChangelog = require('gulp-conventional-changelog');
 var git = require('gulp-git');
