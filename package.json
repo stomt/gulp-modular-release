@@ -1,0 +1,31 @@
+{
+  "name": "gulp-modular-release",
+  "version": "0.0.0",
+  "description": "Modular extension to release projects using git-flow release strategy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONE-LOGIC/gulp-modular-release.git"
+  },
+  "keywords": [
+    "gulp",
+    "git",
+    "release",
+    "git-flow"
+  ],
+  "author": "Sebastian Henneberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ONE-LOGIC/gulp-modular-release/issues"
+  },
+  "homepage": "https://github.com/ONE-LOGIC/gulp-modular-release#readme",
+  "devDependencies": {
+    "gulp-bump": "^1.0.0",
+    "gulp-conventional-changelog": "^0.7.0",
+    "gulp-git": "^1.7.0",
+    "semver": "^5.1.0"
+  }
+}
