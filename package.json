@@ -22,7 +22,7 @@
     "url": "https://github.com/ONE-LOGIC/gulp-modular-release/issues"
   },
   "homepage": "https://github.com/ONE-LOGIC/gulp-modular-release#readme",
-  "devDependencies": {
+  "dependencies": {
     "argv": "0.0.2",
     "gulp-bump": "^1.0.0",
     "gulp-conventional-changelog": "^0.7.0",
