@@ -28,8 +28,8 @@ module.exports = function(gulp) {
       .pipe(gulp.dest('./'));
   });
 
-  gulp.task('createBranch', function() {
-    return git.checkout(releaseBranch, {args: '-b'});
+  gulp.task('createBranch', function(cb) {
+    return git.checkout(releaseBranch, {args: '-b'}, cb);
   });
 
   gulp.task('commit', ['bump', 'changelog', 'createBranch'], function() {
