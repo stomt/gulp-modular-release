@@ -14,9 +14,13 @@
     "gulp",
     "git",
     "release",
-    "git-flow"
+    "git-flow",
+    "gulp-modular"
   ],
-  "author": "Sebastian Henneberg",
+  "contributors": [
+    "Sebastian Henneberg <dev@sebastianhenneberg.de> (http://sebastianhenneberg.de/)",
+    "Max Klenk <max@klenk.biz>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ONE-LOGIC/gulp-modular-release/issues"

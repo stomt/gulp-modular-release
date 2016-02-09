@@ -1,5 +1,8 @@
-# gulp-modular-release
-Modular extension to release projects using git-flow release strategy
+# gulp-modular-release [![npm version](https://badge.fury.io/js/gulp-modular-release.svg)](https://www.npmjs.com/package/gulp-modular-release)
+
+Modular extension to release projects using [git-flow](https://github.com/nvie/gitflow) release strategy. 
+
+Works well alone or together with [gulp-modular](https://github.com/ONE-LOGIC/gulp-modular).
 
 ## Installation
 
