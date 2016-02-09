@@ -6,59 +6,80 @@ var conventionalChangelog = require('gulp-conventional-changelog');
 var git = require('gulp-git');
 var semver = require('semver');
 
-module.exports = function(gulp) {
-  var versionNumber = argv.v;
-  var releaseBranch = 'release/' + versionNumber;
+module.exports = function(gulp, userConfig) {
 
+  // default configuration
+  var config = {
+    versionNumber: argv.v,
+    bumpFiles: ['./package.json', './bower.json'],
+    changelogFile: './CHANGELOG.md',
+    conventionalChangelog: 'angular',
+    commitMessage: 'bump version number ' + argv.v,
+    tagPrefix: '',
+    masterBranch: 'master',
+    developBranch: 'develop',
+    releaseBranch: 'release/' + argv.v
+  };
+
+  // overwrite with user configuration
+  if (userConfig && userConfig.release) {
+    for (var configKey in userConfig.release) {
+      config[configKey] = userConfig.release[configKey];
+    }
+  }
+
+
+  // tasks
   gulp.task('bump', function() {
-    if (!semver.valid(versionNumber)) {
+    if (!semver.valid(config.versionNumber)) {
       throw 'Failed: specify version "-v X.X.X';
     }
 
-    return gulp.src(['./package.json', './bower.json'])
-      .pipe(bump({version: versionNumber}))
+    return gulp.src(config.bumpFiles)
+      .pipe(bump({version: config.versionNumber}))
       .pipe(gulp.dest('./'));
   });
 
   gulp.task('changelog', ['bump'], function() {
-    return gulp.src('./CHANGELOG.md')
+    return gulp.src(config.changelogFile)
       .pipe(conventionalChangelog({
-        preset: 'angular'
+        preset: config.conventionalChangelog
       }))
       .pipe(gulp.dest('./'));
   });
 
   gulp.task('createBranch', function(cb) {
-    return git.checkout(releaseBranch, {args: '-b'}, cb);
+    git.checkout(config.releaseBranch, {args: '-b'}, cb);
   });
 
   gulp.task('commit', ['bump', 'changelog', 'createBranch'], function() {
-    return gulp.src(['./bower.json', './package.json', './CHANGELOG.md'])
-      .pipe(git.commit('bump version number ' + versionNumber));
+    var files = config.bumpFiles.concat(config.changelogFile);
+    return gulp.src(files)
+      .pipe(git.commit(config.commitMessage));
   });
 
   gulp.task('release', ['commit'], function(cb) {
 
-    git.checkout('develop', {}, mergeInDevelop);
+    git.checkout(config.developBranch, {}, mergeInDevelop);
 
     function mergeInDevelop() {
-      git.merge(releaseBranch, {args: '--no-ff'}, checkoutMaster);
+      git.merge(config.releaseBranch, {args: '--no-ff'}, checkoutMaster);
     }
 
     function checkoutMaster() {
-      git.checkout('master', {}, mergeInMaster);
+      git.checkout(config.masterBranch, {}, mergeInMaster);
     }
 
     function mergeInMaster() {
-      git.merge(releaseBranch, {args: '--no-ff'}, tagVersion);
+      git.merge(config.releaseBranch, {args: '--no-ff'}, tagVersion);
     }
 
     function tagVersion() {
-      git.tag('v' + versionNumber, versionNumber, {}, deleteBranch);
+      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, deleteBranch);
     }
 
     function deleteBranch() {
-      git.branch(releaseBranch, {args: '-d'}, cb);
+      git.branch(config.releaseBranch, {args: '-d'}, cb);
     }
   });
 };

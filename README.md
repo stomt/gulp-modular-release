@@ -13,7 +13,24 @@ npm install gulp-modular-release
 var gulp = require('gulp');
 var gulpModularRelease = require('gulp-modular-release');
 
-gulpModularRelease(gulp);
+// optionally overwrite default configuration
+var config = {
+
+  //// task [`release`] creates a new release
+  release: {
+  //  versionNumber: argv.v, // the version number of the new release
+  //  bumpFiles: ['./package.json', './bower.json'], // write version number to these files
+  //  changelogFile: './CHANGELOG.md', // generate changelog in this file
+  //  conventionalChangelog: 'angular', // choose preset style like: : 'angular', 'atom', 'eslint', 'jscs', 'jshint'
+  //  commitMessage: 'bump version number ' + argv.v, // message of bump commit
+  //  tagPrefix: '', // define a prefix like 'v' for the git tag
+  //  masterBranch: 'master', // the projects master branch
+  //  developBranch: 'develop', // the projects develop branch
+  //  releaseBranch: 'release/' + argv.v // the release branch created while releasing
+  }
+};
+  
+gulpModularRelease(gulp, config);
 ```
 
 ## Usage
