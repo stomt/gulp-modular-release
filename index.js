@@ -18,7 +18,9 @@ module.exports = function(gulp, userConfig) {
     tagPrefix: '',
     masterBranch: 'master',
     developBranch: 'develop',
-    releaseBranch: 'release/' + argv.v
+    origin: 'origin',
+    releaseBranch: 'release/' + argv.v,
+    push: false
   };
 
   // overwrite with user configuration
@@ -79,7 +81,19 @@ module.exports = function(gulp, userConfig) {
     }
 
     function deleteBranch() {
-      git.branch(config.releaseBranch, {args: '-d'}, cb);
+      git.branch(config.releaseBranch, {args: '-d'}, pushBranches);
+    }
+
+    function pushBranches() {
+      if (config.push) {
+        git.push(config.origin, config.developBranch + ' ' + config.developBranch, {args: " --tags"}, checkoutDevelop);
+      } else {
+        cb();
+      }
+    }
+
+    function checkoutDevelop() {
+      git.checkout(config.developBranch, {}, cb);
     }
   });
 };
