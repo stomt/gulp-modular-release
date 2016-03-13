@@ -1,4 +1,6 @@
-# gulp-modular-release [![npm version](https://badge.fury.io/js/gulp-modular-release.svg)](https://www.npmjs.com/package/gulp-modular-release)
+# gulp-modular-release [![npm version](https://badge.fury.io/js/gulp-modular-release.svg)](https://www.npmjs.com/package/gulp-modular-release) [![Dependency Status](https://gemnasium.com/ONE-LOGIC/gulp-modular-release.svg)](https://gemnasium.com/ONE-LOGIC/gulp-modular-release)
+
+
 
 Modular extension to release projects using [git-flow](https://github.com/nvie/gitflow) release strategy. 
 
@@ -40,7 +42,12 @@ gulpModularRelease(gulp, config);
 
 ```
 gulp release -v 1.2.3
+
+or
+
+gulp release
 ```
+(If no version is specified the next version is generated using [conventional-recommended-bump](https://github.com/stevemao/conventional-recommended-bump).)
 
 ## Strategy
 
