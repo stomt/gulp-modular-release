@@ -1,7 +1,5 @@
 # gulp-modular-release [![npm version](https://badge.fury.io/js/gulp-modular-release.svg)](https://www.npmjs.com/package/gulp-modular-release) [![Dependency Status](https://gemnasium.com/ONE-LOGIC/gulp-modular-release.svg)](https://gemnasium.com/ONE-LOGIC/gulp-modular-release)
 
-
-
 Modular extension to release projects using [git-flow](https://github.com/nvie/gitflow) release strategy. 
 
 Works well alone or together with [gulp-modular](https://github.com/ONE-LOGIC/gulp-modular).
@@ -9,7 +7,7 @@ Works well alone or together with [gulp-modular](https://github.com/ONE-LOGIC/gu
 ## Installation
 
 ```
-npm install gulp-modular-release
+npm install gulp-modular-release --save-dev
 ```
 
 ## Integration in gulpfile
@@ -32,6 +30,7 @@ var config = {
   //  masterBranch: 'master', // the projects master branch
   //  developBranch: 'develop', // the projects develop branch
   //  releaseBranch: 'release/' + argv.v // the release branch created while releasing
+  //  push: false // push change to remote repository
   }
 };
   
@@ -58,3 +57,4 @@ gulp release
 5. merges `release/1.2.3` into `develop`
 6. merges `release/1.2.3` into `master` and tags it with `v1.2.3`
 7. deletes branch `release/1.2.3`
+8. (optionally) push changes to remote repository
