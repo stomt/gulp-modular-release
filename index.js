@@ -70,7 +70,9 @@ module.exports = function(gulp, userConfig) {
   });
 
   gulp.task('changelog', ['bump'], function() {
-    return gulp.src(config.changelogFile)
+    return gulp.src(config.changelogFile, {
+      buffer: false
+    })
       .pipe(conventionalChangelog({
         preset: config.conventionalChangelog
       }))
@@ -90,7 +92,15 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('release', ['commit'], function(cb) {
 
-    git.checkout(config.developBranch, {}, mergeInDevelop);
+    tagVersion()
+
+    function tagVersion() {
+      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, switchBackToDevelop);
+    }
+
+    function switchBackToDevelop() {
+      git.checkout(config.developBranch, {}, mergeInDevelop);
+    }
 
     function mergeInDevelop() {
       git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, checkoutMaster);
@@ -101,11 +111,7 @@ module.exports = function(gulp, userConfig) {
     }
 
     function mergeInMaster() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
-    }
-
-    function tagVersion() {
-      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, deleteBranch);
+      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, deleteBranch);
     }
 
     function deleteBranch() {
