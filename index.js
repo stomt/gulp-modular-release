@@ -7,6 +7,8 @@ var conventionalRecommendedBump = require('conventional-recommended-bump');
 var git = require('gulp-git');
 var semver = require('semver');
 var tap = require("gulp-tap");
+var filter = require('gulp-filter');
+var xmleditor = require('gulp-xml-editor');
 
 module.exports = function(gulp, userConfig) {
 
@@ -41,9 +43,20 @@ module.exports = function(gulp, userConfig) {
       if (!semver.valid(config.versionNumber)) {
         throw 'Failed: specify a semver valid version "-v X.X.X';
       } else {
+        var jsonFilter = filter('**/*.json');
+        var xmlFilter = filter('**/*.xml');
+
+        // bump json files using gulp-bump and xml files using gulp-xml-editor
         return gulp.src(config.bumpFiles)
-          .pipe(bump({version: config.versionNumber}))
-          .pipe(gulp.dest('./'));
+            .pipe(jsonFilter)
+            .pipe(bump({version: config.versionNumber}))
+            .pipe(gulp.dest('./')) &&
+          gulp.src(config.bumpFiles)
+            .pipe(xmlFilter)
+            .pipe(xmleditor([
+              { path: '.', attr: { 'version': config.versionNumber } }
+            ]))
+            .pipe(gulp.dest('./'));
       }
 
     } else {
