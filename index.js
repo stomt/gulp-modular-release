@@ -32,9 +32,13 @@ module.exports = function(gulp, userConfig) {
     }
   }
 
-
   // tasks
-  gulp.task('bump', function(done) {
+  gulp.task('checkoutDevelop', function(done) {
+    git.checkout(config.developBranch, {}, done);
+  });
+
+
+  gulp.task('bump', ['checkoutDevelop'], function(done) {
     if (config.versionNumber) {
 
       // use passed version number
@@ -71,8 +75,8 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('changelog', ['bump'], function() {
     return gulp.src(config.changelogFile, {
-      buffer: false
-    })
+        buffer: false
+      })
       .pipe(conventionalChangelog({
         preset: config.conventionalChangelog
       }))
@@ -92,7 +96,7 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('release', ['commit'], function(cb) {
 
-    tagVersion()
+    tagVersion();
 
     function tagVersion() {
       git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, switchBackToDevelop);
@@ -122,7 +126,7 @@ module.exports = function(gulp, userConfig) {
       if (config.push) {
         git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, checkoutDevelop);
       } else {
-        cb();
+        checkoutDevelop();
       }
     }
 
