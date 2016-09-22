@@ -37,8 +37,11 @@ module.exports = function(gulp, userConfig) {
     git.checkout(config.developBranch, {}, done);
   });
 
+  gulp.task('pullDevelop', ['checkoutDevelop'], function(done) {
+    git.pull(config.origin, config.developBranch , {args: '--ff-only'}, done);
+  });
 
-  gulp.task('bump', ['checkoutDevelop'], function(done) {
+  gulp.task('bump', ['pullDevelop'], function(done) {
     if (config.versionNumber) {
 
       // use passed version number
