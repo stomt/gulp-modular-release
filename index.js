@@ -99,26 +99,26 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('release', ['commit'], function(cb) {
 
-    tagVersion();
-
-    function tagVersion() {
-      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, switchBackToDevelop);
-    }
-
-    function switchBackToDevelop() {
-      git.checkout(config.developBranch, {}, mergeInDevelop);
-    }
-
-    function mergeInDevelop() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, checkoutMaster);
-    }
+    checkoutMaster();
 
     function checkoutMaster() {
       git.checkout(config.masterBranch, {}, mergeInMaster);
     }
 
     function mergeInMaster() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, deleteBranch);
+      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
+    }
+
+    function tagVersion() {
+      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, checkoutDevelop);
+    }
+
+    function checkoutDevelop() {
+      git.checkout(config.developBranch, {}, mergeInDevelop);
+    }
+
+    function mergeInDevelop() {
+      git.merge(config.masterBranch, {args: '--no-ff'}, deleteBranch);
     }
 
     function deleteBranch() {
@@ -127,14 +127,10 @@ module.exports = function(gulp, userConfig) {
 
     function pushBranches() {
       if (config.push) {
-        git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, checkoutDevelop);
+        git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, cb);
       } else {
-        checkoutDevelop();
+        cb();
       }
-    }
-
-    function checkoutDevelop() {
-      git.checkout(config.developBranch, {}, cb);
     }
   });
 };

@@ -50,11 +50,13 @@ gulp release
 
 ## Strategy
 
-1. creates branch `release/1.2.3` from `develop`
-2. sets version number to `bower.json` and `package.json`
-3. generates and writes changelog via conventional changelog to `CHANGELOG.md`
-4. commits the previous changes
-5. merges `release/1.2.3` into `develop`
+1. checks out `develop` branch and pulls `origin` for changes (`pull --only-ff`)
+2. creates branch `release/1.2.3` from `develop`
+3. sets version number to `bower.json` and `package.json`
+4. generates and writes changelog via conventional changelog to `CHANGELOG.md`
+5. commits the previous changes
 6. merges `release/1.2.3` into `master` and tags it with `v1.2.3`
-7. deletes branch `release/1.2.3`
-8. (optionally) push changes to remote repository
+7. merges `master` into `develop` 
+8. deletes branch `release/1.2.3`
+9. checks out `develop`
+10. (optionally) pushes changes to remote repository
