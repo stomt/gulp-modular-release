@@ -13,6 +13,7 @@ module.exports = function(gulp, userConfig) {
   // default configuration
   var config = {
     versionNumber: argv.v,
+    hotfixBranch: argv.b,
     bumpFiles: ['./package.json', './bower.json'],
     changelogFile: './CHANGELOG.md',
     conventionalChangelog: 'angular',
@@ -33,15 +34,31 @@ module.exports = function(gulp, userConfig) {
   }
 
   // tasks
-  gulp.task('checkoutDevelop', function(done) {
-    git.checkout(config.developBranch, {}, done);
+  gulp.task('checkoutMaster', function(done) {
+    git.checkout(config.masterBranch, {}, done);
   });
 
-  gulp.task('pullDevelop', ['checkoutDevelop'], function(done) {
-    git.pull(config.origin, config.developBranch , {args: '--ff-only'}, done);
+  gulp.task('pullMaster', ['checkoutMaster'], function(done) {
+    git.pull(config.origin, config.masterBranch, {}, done);
   });
 
-  gulp.task('bump', ['pullDevelop'], function(done) {
+  gulp.task('checkoutSourceBranch', ['pullMaster'], function(done) {
+    if (config.hotfixBranch) {
+      git.checkout(config.hotfixBranch, {}, done);
+    } else {
+      git.checkout(config.developBranch, {}, done);
+    }
+  });
+
+  gulp.task('pullSourceBranch', ['checkoutSourceBranch'], function(done) {
+    if (!config.hotfixBranch) {
+      git.pull(config.origin, config.developBranch, {args: '--ff-only'}, done);
+    } else {
+      done();
+    }
+  });
+
+  gulp.task('bump', ['pullSourceBranch'], function(done) {
     if (config.versionNumber) {
 
       // use passed version number
@@ -87,8 +104,11 @@ module.exports = function(gulp, userConfig) {
   });
 
   gulp.task('createBranch', ['bump'], function(cb) {
-    console.log('switch', config.releaseBranch + config.versionNumber);
-    git.checkout(config.releaseBranch + config.versionNumber, {args: '-b'}, cb);
+    if (!config.hotfixBranch) {
+      git.checkout(config.releaseBranch + config.versionNumber, {args: '-b'}, cb);
+    } else {
+      cb();
+    }
   });
 
   gulp.task('commit', ['bump', 'changelog', 'createBranch'], function() {
@@ -106,7 +126,11 @@ module.exports = function(gulp, userConfig) {
     }
 
     function mergeInMaster() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
+      if (config.hotfixBranch) {
+        git.merge(config.hotfixBranch, {args: '--no-ff'}, tagVersion);
+      } else {
+        git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
+      }
     }
 
     function tagVersion() {
@@ -118,11 +142,15 @@ module.exports = function(gulp, userConfig) {
     }
 
     function mergeInDevelop() {
-      git.merge(config.masterBranch, {args: '--no-ff'}, deleteBranch);
+      git.merge(config.masterBranch, {args: '-s ours'}, deleteBranch);
     }
 
     function deleteBranch() {
-      git.branch(config.releaseBranch + config.versionNumber, {args: '-d'}, pushBranches);
+      if (config.hotfixBranch) {
+        git.branch(config.hotfixBranch, {args: '-d'}, pushBranches);
+      } else {
+        git.branch(config.releaseBranch + config.versionNumber, {args: '-d'}, pushBranches);
+      }
     }
 
     function pushBranches() {
