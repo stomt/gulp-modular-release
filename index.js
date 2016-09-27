@@ -142,7 +142,7 @@ module.exports = function(gulp, userConfig) {
     }
 
     function mergeInDevelop() {
-      git.merge(config.masterBranch, {args: '-s ours'}, deleteBranch);
+      git.merge(config.masterBranch, {}, deleteBranch);
     }
 
     function deleteBranch() {
