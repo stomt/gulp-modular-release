@@ -22,7 +22,7 @@ var config = {
   //// task [`release`] creates a new release
   release: {
   //  versionNumber: argv.v, // the version number of the new release
-  //  bumpFiles: ['./package.json', './bower.json'], // write version number to these files
+  //  bumpFiles: ['./package.json', './bower.json'], // write version number to these files, cordova config.xml is also supported
   //  changelogFile: './CHANGELOG.md', // generate changelog in this file
   //  conventionalChangelog: 'angular', // choose preset style like: : 'angular', 'atom', 'eslint', 'jscs', 'jshint'
   //  commitMessage: 'bump version number ' + argv.v, // message of bump commit

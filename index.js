@@ -7,6 +7,8 @@ var conventionalRecommendedBump = require('conventional-recommended-bump');
 var git = require('gulp-git');
 var semver = require('semver');
 var tap = require("gulp-tap");
+var filter = require('gulp-filter');
+var xmleditor = require('gulp-xml-editor');
 
 module.exports = function(gulp, userConfig) {
 
@@ -65,9 +67,21 @@ module.exports = function(gulp, userConfig) {
       if (!semver.valid(config.versionNumber)) {
         throw 'Failed: specify a semver valid version "-v X.X.X';
       } else {
-        return gulp.src(config.bumpFiles)
-          .pipe(bump({version: config.versionNumber}))
-          .pipe(gulp.dest('./'));
+        var jsonFilter = filter('**/*.json', {restore: true});
+        var xmlFilter = filter('**/*.xml', {restore: true});
+
+        // bump json files using gulp-bump and xml files using gulp-xml-editor
+        return gulp.src(config.bumpFiles, { base: "./" })
+            .pipe(jsonFilter)
+            .pipe(bump({version: config.versionNumber}))
+            .pipe(gulp.dest('./')) // TODO check if this is needed twice
+            .pipe(jsonFilter.restore)
+            .pipe(xmlFilter)
+            .pipe(xmleditor([
+              { path: '.', attr: { 'version': config.versionNumber } }
+            ]))
+            .pipe(xmlFilter.restore)
+            .pipe(gulp.dest('./'));
       }
 
     } else {
@@ -76,8 +90,15 @@ module.exports = function(gulp, userConfig) {
       conventionalRecommendedBump({
         preset: config.conventionalChangelog
       }, function(err, releaseAs) {
-        gulp.src(config.bumpFiles)
+        gulp.src(config.bumpFiles, { base: "./" })
+          .pipe(jsonFilter)
           .pipe(bump({type: releaseAs}))
+          .pipe(jsonFilter.restore)
+          .pipe(xmlFilter)
+          .pipe(xmleditor([
+            { path: '.', attr: { 'version': config.versionNumber } }
+          ]))
+          .pipe(xmlFilter.restore)
           .pipe(gulp.dest('./'))
           .pipe(tap(function(file){
             // extract new version
