@@ -15,6 +15,7 @@ module.exports = function(gulp, userConfig) {
   // default configuration
   var config = {
     versionNumber: argv.v,
+    hotfixBranch: argv.b,
     bumpFiles: ['./package.json', './bower.json'],
     changelogFile: './CHANGELOG.md',
     conventionalChangelog: 'angular',
@@ -34,9 +35,32 @@ module.exports = function(gulp, userConfig) {
     }
   }
 
-
   // tasks
-  gulp.task('bump', function(done) {
+  gulp.task('checkoutMaster', function(done) {
+    git.checkout(config.masterBranch, {}, done);
+  });
+
+  gulp.task('pullMaster', ['checkoutMaster'], function(done) {
+    git.pull(config.origin, config.masterBranch, {}, done);
+  });
+
+  gulp.task('checkoutSourceBranch', ['pullMaster'], function(done) {
+    if (config.hotfixBranch) {
+      git.checkout(config.hotfixBranch, {}, done);
+    } else {
+      git.checkout(config.developBranch, {}, done);
+    }
+  });
+
+  gulp.task('pullSourceBranch', ['checkoutSourceBranch'], function(done) {
+    if (!config.hotfixBranch) {
+      git.pull(config.origin, config.developBranch, {args: '--ff-only'}, done);
+    } else {
+      done();
+    }
+  });
+
+  gulp.task('bump', ['pullSourceBranch'], function(done) {
     if (config.versionNumber) {
 
       // use passed version number
@@ -92,8 +116,8 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('changelog', ['bump'], function() {
     return gulp.src(config.changelogFile, {
-      buffer: false
-    })
+        buffer: false
+      })
       .pipe(conventionalChangelog({
         preset: config.conventionalChangelog
       }))
@@ -101,8 +125,11 @@ module.exports = function(gulp, userConfig) {
   });
 
   gulp.task('createBranch', ['bump'], function(cb) {
-    console.log('switch', config.releaseBranch + config.versionNumber);
-    git.checkout(config.releaseBranch + config.versionNumber, {args: '-b'}, cb);
+    if (!config.hotfixBranch) {
+      git.checkout(config.releaseBranch + config.versionNumber, {args: '-b'}, cb);
+    } else {
+      cb();
+    }
   });
 
   gulp.task('commit', ['bump', 'changelog', 'createBranch'], function() {
@@ -113,42 +140,46 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('release', ['commit'], function(cb) {
 
-    tagVersion()
-
-    function tagVersion() {
-      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, switchBackToDevelop);
-    }
-
-    function switchBackToDevelop() {
-      git.checkout(config.developBranch, {}, mergeInDevelop);
-    }
-
-    function mergeInDevelop() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, checkoutMaster);
-    }
+    checkoutMaster();
 
     function checkoutMaster() {
       git.checkout(config.masterBranch, {}, mergeInMaster);
     }
 
     function mergeInMaster() {
-      git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, deleteBranch);
+      if (config.hotfixBranch) {
+        git.merge(config.hotfixBranch, {args: '--no-ff'}, tagVersion);
+      } else {
+        git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
+      }
+    }
+
+    function tagVersion() {
+      git.tag(config.tagPrefix + config.versionNumber, config.versionNumber, {}, checkoutDevelop);
+    }
+
+    function checkoutDevelop() {
+      git.checkout(config.developBranch, {}, mergeInDevelop);
+    }
+
+    function mergeInDevelop() {
+      git.merge(config.masterBranch, {}, deleteBranch);
     }
 
     function deleteBranch() {
-      git.branch(config.releaseBranch + config.versionNumber, {args: '-d'}, pushBranches);
+      if (config.hotfixBranch) {
+        git.branch(config.hotfixBranch, {args: '-d'}, pushBranches);
+      } else {
+        git.branch(config.releaseBranch + config.versionNumber, {args: '-d'}, pushBranches);
+      }
     }
 
     function pushBranches() {
       if (config.push) {
-        git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, checkoutDevelop);
+        git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, cb);
       } else {
         cb();
       }
-    }
-
-    function checkoutDevelop() {
-      git.checkout(config.developBranch, {}, cb);
     }
   });
 };

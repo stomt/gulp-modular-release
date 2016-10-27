@@ -1,6 +1,6 @@
 {
   "name": "gulp-modular-release",
-  "version": "0.2.1",
+  "version": "0.4.1",
   "description": "Modular extension to release projects using git-flow release strategy",
   "main": "index.js",
   "scripts": {
@@ -28,13 +28,13 @@
   "homepage": "https://github.com/ONE-LOGIC/gulp-modular-release#readme",
   "dependencies": {
     "argv": "0.0.2",
-    "conventional-recommended-bump": "^0.2.1",
-    "gulp-bump": "^2.2.0",
-    "gulp-conventional-changelog": "^1.1.0",
+    "conventional-recommended-bump": "0.3.0",
+    "gulp-bump": "2.4.0",
+    "gulp-conventional-changelog": "1.1.0",
     "gulp-filter": "^4.0.0",
-    "gulp-git": "^1.7.0",
-    "gulp-tap": "^0.1.3",
+    "gulp-git": "1.11.3",
+    "gulp-tap": "0.1.3",
     "gulp-xml-editor": "^2.2.1",
-    "semver": "^5.1.0"
+    "semver": "5.3.0"
   }
 }
