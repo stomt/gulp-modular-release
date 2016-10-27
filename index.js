@@ -71,7 +71,7 @@ module.exports = function(gulp, userConfig) {
         var xmlFilter = filter('**/*.xml', {restore: true});
 
         // bump json files using gulp-bump and xml files using gulp-xml-editor
-        return gulp.src(config.bumpFiles)
+        return gulp.src(config.bumpFiles, { base: "./" })
             .pipe(jsonFilter)
             .pipe(bump({version: config.versionNumber}))
             .pipe(gulp.dest('./')) // TODO check if this is needed twice
@@ -90,7 +90,7 @@ module.exports = function(gulp, userConfig) {
       conventionalRecommendedBump({
         preset: config.conventionalChangelog
       }, function(err, releaseAs) {
-        gulp.src(config.bumpFiles)
+        gulp.src(config.bumpFiles, { base: "./" })
           .pipe(jsonFilter)
           .pipe(bump({type: releaseAs}))
           .pipe(jsonFilter.restore)
