@@ -1,6 +1,6 @@
 {
   "name": "gulp-modular-release",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Modular extension to release projects using git-flow release strategy",
   "main": "index.js",
   "scripts": {
