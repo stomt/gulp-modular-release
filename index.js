@@ -8,7 +8,7 @@ var git = require('gulp-git');
 var semver = require('semver');
 var tap = require("gulp-tap");
 var filter = require('gulp-filter');
-var xmleditor = require('gulp-xml-editor');
+var xmleditor = require('gulp-xml-transformer');
 
 module.exports = function(gulp, userConfig) {
 
