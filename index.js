@@ -176,7 +176,7 @@ module.exports = function(gulp, userConfig) {
 
     function pushBranches() {
       if (config.push) {
-        git.push(config.origin, config.developBranch + ' ' + config.masterBranch, {args: " --tags"}, cb);
+        git.push(config.origin, [config.developBranch, config.masterBranch], {args: " --tags"}, cb);
       } else {
         cb();
       }
