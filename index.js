@@ -60,15 +60,16 @@ module.exports = function(gulp, userConfig) {
     }
   });
 
-  gulp.task('bump', ['pullSourceBranch'], function(done) {
+  gulp.task('bump', ['pullSourceBranch'], function() {
+    var jsonFilter = filter('**/*.json', {restore: true});
+    var xmlFilter = filter('**/*.xml', {restore: true});
+
     if (config.versionNumber) {
 
       // use passed version number
       if (!semver.valid(config.versionNumber)) {
         throw 'Failed: specify a semver valid version "-v X.X.X';
       } else {
-        var jsonFilter = filter('**/*.json', {restore: true});
-        var xmlFilter = filter('**/*.xml', {restore: true});
 
         // bump json files using gulp-bump and xml files using gulp-xml-editor
         return gulp.src(config.bumpFiles, { base: "./" })
@@ -93,22 +94,22 @@ module.exports = function(gulp, userConfig) {
         gulp.src(config.bumpFiles, { base: "./" })
           .pipe(jsonFilter)
           .pipe(bump({type: releaseAs}))
-          .pipe(jsonFilter.restore)
-          .pipe(xmlFilter)
-          .pipe(xmleditor([
-            { path: '.', attr: { 'version': config.versionNumber } }
-          ]))
-          .pipe(xmlFilter.restore)
-          .pipe(gulp.dest('./'))
-          .pipe(tap(function(file){
+          .pipe(tap(function(file, t){
             // extract new version
             if (!config.versionNumber) {
               var json = JSON.parse(String(file.contents));
               config.versionNumber = json.version;
-              console.log(config.versionNumber);
-              done();
+
+              gulp.src(config.bumpFiles, { base: "./" })
+                .pipe(xmlFilter)
+                .pipe(xmleditor([
+                  { path: '.', attr: { 'version': config.versionNumber } }
+                ]))
+                .pipe(gulp.dest('./'));
             }
-          }));
+            return t;
+          }))
+          .pipe(gulp.dest('./'));
       });
 
     }
