@@ -72,17 +72,17 @@ module.exports = function(gulp, userConfig) {
       } else {
 
         // bump json files using gulp-bump and xml files using gulp-xml-editor
-        return gulp.src(config.bumpFiles, { base: "./" })
-            .pipe(jsonFilter)
-            .pipe(bump({version: config.versionNumber}))
-            .pipe(gulp.dest('./')) // TODO check if this is needed twice
-            .pipe(jsonFilter.restore)
-            .pipe(xmlFilter)
-            .pipe(xmleditor([
-              { path: '.', attr: { 'version': config.versionNumber } }
-            ]))
-            .pipe(xmlFilter.restore)
-            .pipe(gulp.dest('./'));
+        return gulp.src(config.bumpFiles, {base: "./"})
+          .pipe(jsonFilter)
+          .pipe(bump({version: config.versionNumber}))
+          .pipe(gulp.dest('./')) // TODO check if this is needed twice
+          .pipe(jsonFilter.restore)
+          .pipe(xmlFilter)
+          .pipe(xmleditor([
+            {path: '.', attr: {'version': config.versionNumber}}
+          ]))
+          .pipe(xmlFilter.restore)
+          .pipe(gulp.dest('./'));
       }
 
     } else {
@@ -91,19 +91,19 @@ module.exports = function(gulp, userConfig) {
       conventionalRecommendedBump({
         preset: config.conventionalChangelog
       }, function(err, releaseAs) {
-        gulp.src(config.bumpFiles, { base: "./" })
+        gulp.src(config.bumpFiles, {base: "./"})
           .pipe(jsonFilter)
           .pipe(bump({type: releaseAs}))
-          .pipe(tap(function(file, t){
+          .pipe(tap(function(file, t) {
             // extract new version
             if (!config.versionNumber) {
               var json = JSON.parse(String(file.contents));
               config.versionNumber = json.version;
 
-              gulp.src(config.bumpFiles, { base: "./" })
+              gulp.src(config.bumpFiles, {base: "./"})
                 .pipe(xmlFilter)
                 .pipe(xmleditor([
-                  { path: '.', attr: { 'version': config.versionNumber } }
+                  {path: '.', attr: {'version': config.versionNumber}}
                 ]))
                 .pipe(gulp.dest('./'));
             }
@@ -117,8 +117,8 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('changelog', ['bump'], function() {
     return gulp.src(config.changelogFile, {
-        buffer: false
-      })
+      buffer: false
+    })
       .pipe(conventionalChangelog({
         preset: config.conventionalChangelog
       }))
@@ -127,7 +127,7 @@ module.exports = function(gulp, userConfig) {
 
   gulp.task('createBranch', ['bump'], function(cb) {
     if (!config.hotfixBranch) {
-      git.checkout(config.releaseBranch + config.versionNumber, {args: '-b'}, cb);
+      git.checkout(config.releaseBranch + 'newRelease', {args: '-b'}, cb);
     } else {
       cb();
     }
@@ -151,7 +151,7 @@ module.exports = function(gulp, userConfig) {
       if (config.hotfixBranch) {
         git.merge(config.hotfixBranch, {args: '--no-ff'}, tagVersion);
       } else {
-        git.merge(config.releaseBranch + config.versionNumber, {args: '--no-ff'}, tagVersion);
+        git.merge(config.releaseBranch + 'newRelease', {args: '--no-ff'}, tagVersion);
       }
     }
 
@@ -171,7 +171,7 @@ module.exports = function(gulp, userConfig) {
       if (config.hotfixBranch) {
         git.branch(config.hotfixBranch, {args: '-d'}, pushBranches);
       } else {
-        git.branch(config.releaseBranch + config.versionNumber, {args: '-d'}, pushBranches);
+        git.branch(config.releaseBranch + 'newRelease', {args: '-d'}, pushBranches);
       }
     }
 
